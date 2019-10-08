@@ -2,6 +2,8 @@
 
 Exercising to use Horde to simulate a _chat_ room cluster.
 
+![Chat output](https://raw.githubusercontent.com/balena/elixir-party/master/output.png)
+
 ## How it works
 
 At start, members of a ficticious chat room are created.
