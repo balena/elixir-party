@@ -1,0 +1,2 @@
+defmodule Party do
+end
