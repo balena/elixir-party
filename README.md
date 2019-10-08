@@ -1,8 +1,9 @@
-# Party
+# Let's Party (with Horde)
 
 Exercising to use Horde to simulate a _chat_ room cluster.
 
 ![Chat output](https://raw.githubusercontent.com/balena/elixir-party/master/output.png)
+
 
 ## How it works
 
@@ -11,6 +12,7 @@ At start, members of a ficticious chat room are created.
 As soon another nodes join the cluster, more members are created.
 
 Case a node dies, existing nodes will handoff the members of that node.
+
 
 ## How to run
 
