@@ -4,7 +4,6 @@ defmodule Party.Application do
   def start(_type, _args) do
     children = [
       Party.Supervisor,
-      Party.Registry,
       Party.NodeMonitor,
       {Party.ClusterSupervisor, Application.get_env(:libcluster, :topologies)},
     ]
