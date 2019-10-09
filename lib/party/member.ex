@@ -1,9 +1,8 @@
 defmodule Party.Member do
-  use GenServer, restart: :transient, shutdown: 1_000
+  use GenServer
 
   defstruct [
-   :id,
-   :quit,
+   :silent,
    :name,
    :app,
    :color,
@@ -15,27 +14,32 @@ defmodule Party.Member do
       FakerElixir.Color.make_rgb()
       |> Enum.map(fn c -> (c * 5) |> div(255) end)
 
+    name = FakerElixir.Internet.user_name()
+
     %__MODULE__{
-      id: opts |> Keyword.get(:id, 0),
-      quit: opts |> Keyword.get(:quit, false),
-      name: FakerElixir.Internet.user_name(),
+      silent: opts |> Keyword.get(:silent, false),
+      name: name,
       app: "#{FakerElixir.App.name()}/#{FakerElixir.App.version()}",
       color: IO.ANSI.color(r, g, b),
       email: FakerElixir.Internet.email(),
     }
   end
 
-  def child_spec(opts) do
-    member = opts |> Keyword.get(:member, new())
+  def quit(server), do: GenServer.call(server, :quit)
 
+  def child_spec(opts) do
     %{
-      id: :"member_#{member.id}",
-      start: {Party.Member, :start_link, [member]},
+      id: __MODULE__,
+      start: {Party.Member, :start_link, [opts]},
+      restart: :temporary,
+      shutdown: 1_000,
     }
   end
 
-  def start_link(member) do
-    GenServer.start_link(__MODULE__, member)
+  def start_link(options) do
+    member = options |> Keyword.fetch!(:member)
+    options = options |> Keyword.delete(:member)
+    GenServer.start_link(__MODULE__, member, options)
   end
 
   @impl true
@@ -48,26 +52,27 @@ defmodule Party.Member do
   end
 
   @impl true
+  def handle_call(:quit, _from, member) do
+    member |> do_quit()
+
+    {:stop, :normal, :ok, member}
+  end
+
+  @impl true
   def handle_info(:timeout, member) do
     member |> talk()
-
-    case if member.quit, do: Enum.random(1..10), else: :always do
-      1 ->
-        member |> quit()
-        {:stop, :normal, member}
-
-      _ ->
-        {:noreply, member, Enum.random(1_000..10_000)}
-    end
+    {:noreply, member, Enum.random(1_000..10_000)}
   end
 
   @impl true
   def terminate(reason, member) do
-    "!!!"
-    |> says([:bright, :red], [
-      member.color, member.name, " <", member.email, ">", :reset,
-      :bright, :red, " killed, reason: #{inspect reason}",
-    ])
+    if reason != :normal do
+      "!!!"
+      |> says([:bright, :red], [
+        member.color, member.name, " <", member.email, ">", :reset,
+        :bright, :red, " killed, reason: #{inspect reason}",
+      ])
+    end
   end
 
   defp says(who, color, text) do
@@ -97,7 +102,7 @@ defmodule Party.Member do
     ])
   end
 
-  defp quit(member) do
+  defp do_quit(member) do
     "<--"
     |> says([:bright, :red], [
       member.color, member.name, " <", member.email, ">", :reset,
@@ -106,7 +111,9 @@ defmodule Party.Member do
   end
 
   defp talk(member) do
-    member.name
-    |> says(member.color, FakerElixir.Lorem.sentence())
+    if not member.silent do
+      member.name
+      |> says(member.color, FakerElixir.Lorem.sentence())
+    end
   end
 end

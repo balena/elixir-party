@@ -12,7 +12,7 @@ defmodule Party.NodeMonitor do
   end
 
   defp get_modules() do
-    [Party.Supervisor]
+    [Party.Supervisor, Party.Registry]
   end
 
   def handle_info({:nodeup, _node, _node_type}, state) do
