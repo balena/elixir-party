@@ -1,17 +1,16 @@
 defmodule Party.Supervisor do
   use Horde.DynamicSupervisor
 
-  def start_link(init_arg, options \\ []) do
-    options =
-      [name: __MODULE__]
-      |> Keyword.merge(options)
-    Horde.DynamicSupervisor.start_link(__MODULE__, init_arg, options)
+  def start_link(_) do
+    Horde.DynamicSupervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def init(init_arg) do
-    [strategy: :one_for_one, members: get_members()]
-    |> Keyword.merge(init_arg)
-    |> Horde.DynamicSupervisor.init()
+  def init(_init_arg) do
+    Horde.DynamicSupervisor.init(
+      strategy: :one_for_one,
+      members: get_members(),
+      process_redistribution: :active
+    )
   end
 
   defp get_members() do

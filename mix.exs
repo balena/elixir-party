@@ -14,16 +14,16 @@ defmodule PartyUmbrella.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger]
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:horde, "~> 0.7.0"},
+      {:horde, github: "derekkraan/horde", tag: "381279cc2a72b5f16a91a6bdca3a4cb1fa166953"},
       {:libcluster, "~> 3.1"},
-      {:faker_elixir_octopus, "~> 1.0.2"},
+      {:faker_elixir_octopus, "~> 1.0.2"}
     ]
   end
 end
